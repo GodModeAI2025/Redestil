@@ -1,0 +1,3 @@
+spacy>=3.7
+textstat>=0.7
+numpy>=1.24

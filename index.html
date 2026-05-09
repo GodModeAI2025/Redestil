@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedenSkill — Sprach-DNA-Extraktion &amp; Reden-Generator</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-2: #232733;
+    --border: #2e3345;
+    --text: #e4e6ef;
+    --text-muted: #8b90a5;
+    --accent: #6c8aff;
+    --accent-dim: #4a62cc;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* --- NAV --- */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(15, 17, 23, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 0 2rem;
+  }
+  nav .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  nav .logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  nav .links { display: flex; gap: 2rem; }
+  nav .links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  nav .links a:hover { color: var(--text); }
+
+  /* --- HERO --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    background: radial-gradient(ellipse at 50% 0%, rgba(108,138,255,0.08) 0%, transparent 60%);
+  }
+  .hero .badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    max-width: 800px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    margin-top: 1.5rem;
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    line-height: 1.8;
+  }
+  .hero .cta {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hero .cta a {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .hero .cta .primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .hero .cta .primary:hover { background: var(--accent-dim); }
+  .hero .cta .secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .hero .cta .secondary:hover { border-color: var(--accent); }
+
+  /* --- SECTIONS --- */
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+  section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  section .subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 3rem;
+    max-width: 700px;
+  }
+
+  /* --- CARDS --- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .card .icon.blue { background: rgba(108,138,255,0.12); }
+  .card .icon.green { background: rgba(74,222,128,0.12); }
+  .card .icon.amber { background: rgba(251,191,36,0.12); }
+  .card h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .card p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  /* --- PIPELINE --- */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 2rem;
+  }
+  .pipeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--border);
+  }
+  .pipeline .step {
+    position: relative;
+    padding: 1.5rem 0 1.5rem 2rem;
+  }
+  .pipeline .step::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 1.85rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+  }
+  .pipeline .step.done::before {
+    background: var(--accent);
+  }
+  .pipeline .step h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .pipeline .step .tool {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: var(--mono);
+    margin-right: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .pipeline .step .tool.python { background: rgba(74,222,128,0.12); color: var(--green); }
+  .pipeline .step .tool.claude { background: rgba(108,138,255,0.12); color: var(--accent); }
+  .pipeline .step p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+  }
+
+  /* --- TABLE --- */
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
+  .metrics-table th {
+    text-align: left;
+    padding: 0.8rem 1rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .metrics-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .metrics-table tr:hover td { background: var(--surface); }
+
+  /* --- CODE --- */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+  }
+  .code-block .cmd { color: var(--green); }
+  .code-block .comment { color: #555a70; }
+  .code-block .highlight { color: var(--accent); }
+
+  /* --- FLOW DIAGRAM --- */
+  .flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 0;
+    align-items: center;
+    margin: 2rem 0;
+  }
+  .flow .node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+  .flow .node h4 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+  .flow .node p { color: var(--text-muted); font-size: 0.8rem; }
+  .flow .arrow {
+    color: var(--accent);
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 0 0.5rem;
+  }
+
+  /* --- DURATION TABLE --- */
+  .duration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .duration-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+  .duration-item .minutes {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .duration-item .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+  .duration-item .words {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  /* --- SCORE DEMO --- */
+  .score-demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.9;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+  .score-demo .pass { color: var(--green); }
+  .score-demo .warn { color: var(--amber); }
+  .score-demo .header { color: var(--text); font-weight: 700; }
+
+  /* --- FEEDBACK LOOP --- */
+  .loop-visual {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  .loop-visual .loop-node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    text-align: center;
+    min-width: 160px;
+    position: relative;
+  }
+  .loop-visual .loop-node h4 { font-size: 0.9rem; }
+  .loop-visual .loop-node p { font-size: 0.8rem; color: var(--text-muted); }
+  .loop-visual .loop-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--accent);
+    font-size: 1.5rem;
+  }
+
+  /* --- FAQ --- */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 0;
+  }
+  .faq-item h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    cursor: default;
+  }
+  .faq-item p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  /* --- FOOTER --- */
+  footer {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* --- RESPONSIVE --- */
+  @media (max-width: 768px) {
+    nav .links { display: none; }
+    .flow { grid-template-columns: 1fr; }
+    .flow .arrow { transform: rotate(90deg); padding: 0.5rem; }
+    .hero h1 { font-size: 2rem; }
+    section { padding: 3rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="inner">
+    <div class="logo">RedenSkill</div>
+    <div class="links">
+      <a href="#modi">Modi</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#diagnose">Diagnose</a>
+      <a href="#metriken">Metriken</a>
+      <a href="#validierung">Validierung</a>
+      <a href="#dauer">Sprechdauer</a>
+      <a href="#feedback">Feedback-Loop</a>
+      <a href="#setup">Setup</a>
+      <a href="#faq">FAQ</a>
+      <a href="#impressum">Impressum</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">Claude Code Skill + Python NLP Pipeline</div>
+  <h1>Redestil erfassen.<br><span>Reproduzierbar machen.</span></h1>
+  <p>
+    Extrahiere die Sprach-DNA eines Redners aus Beispielreden.
+    Generiere neue Reden im exakten Stil — validiert gegen 47 messbare Dimensionen.
+    Lerne aus Feedback und werde mit jeder Rede besser.
+  </p>
+  <div class="cta">
+    <a href="#setup" class="primary">Installation &amp; Start</a>
+    <a href="#modi" class="secondary">Wie funktioniert es?</a>
+  </div>
+</div>
+
+<!-- MODI -->
+<section id="modi">
+  <h2>Drei Modi, ein Workflow</h2>
+  <p class="subtitle">
+    Von der Stilanalyse bis zur fertigen Rede — mit eingebauter Lernschleife.
+  </p>
+  <div class="cards">
+    <div class="card">
+      <div class="icon blue">1</div>
+      <h3>Sprach-DNA erstellen</h3>
+      <p>
+        Analysiert Beispielreden quantitativ (Python: Satzlänge, Rhetorik, Grammatik)
+        und qualitativ (Claude: Tonalität, Argumentation, Bildsprache). Ergebnis ist
+        ein vollständiges, belegtes Stilprofil mit 15 Abschnitten und messbaren Zielwerten.
+      </p>
+    </div>
+    <div class="card">
+      <div class="icon green">2</div>
+      <h3>Rede generieren</h3>
+      <p>
+        Nimmt ein Briefing entgegen (Thema, Zielgruppe, Dauer in Minuten oder Wörtern),
+        erstellt eine Gliederung nach dem DNA-Blueprint, generiert die Rede abschnittsweise
+        und validiert automatisch gegen die DNA-Metriken. Iteriert bis Score &ge; 85.
+      </p>
+    </div>
+    <div class="card">
+      <div class="icon amber">3</div>
+      <h3>Feedback &amp; Lernen</h3>
+      <p>
+        Akzeptiert Feedback als Text oder als überarbeitete Rede. Python berechnet die
+        Deltas, identifiziert was verschoben wurde, aktualisiert die DNA — und kann
+        sogar den Skill selbst verbessern (versioniertes Self-Improvement).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <h2>So arbeitet die Pipeline</h2>
+  <p class="subtitle">
+    Python liefert die Zahlen. Claude liefert das Verständnis. Zusammen entsteht die Sprach-DNA.
+  </p>
+
+  <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: var(--accent);">Modus 1: Sprach-DNA erstellen</h3>
+  <div class="pipeline">
+    <div class="step done">
+      <h4>Konvergenz-Diagnose</h4>
+      <span class="tool python">Python</span>
+      <p>Inkrementelle Analyse: Jede Rede wird einzeln hinzugefügt und ihr Einfluss auf die Metriken gemessen. Zeigt ob die DNA stabil wird oder mehr Reden nötig sind.</p>
+    </div>
+    <div class="step done">
+      <h4>Quantitative Analyse</h4>
+      <span class="tool python">Python</span>
+      <span class="tool python">spaCy</span>
+      <p>47 Dimensionen extrahieren: Satzlänge, TTR, Rhetorik, POS-Verteilung, Interpunktion, Lesbarkeit, Aktiv/Passiv, Pronomen-Profil.</p>
+    </div>
+    <div class="step done">
+      <h4>Rhetorische Figuren</h4>
+      <span class="tool python">Python</span>
+      <p>Anaphern, Epiphern, Trikola, rhetorische Fragen, Antithesen und bewusste Wiederholungen erkennen.</p>
+    </div>
+    <div class="step done">
+      <h4>Qualitative Analyse</h4>
+      <span class="tool claude">Claude</span>
+      <p>Tonalität, Argumentationsmuster, Aufbau-Architektur, Bildsprache, Rhythmus, Quellen-Integrationsstil, Anti-Patterns.</p>
+    </div>
+    <div class="step">
+      <h4>SPRACH-DNA schreiben</h4>
+      <span class="tool claude">Claude</span>
+      <p>15-Abschnitte-Stilprofil mit Zitaten als Belegen, quantitativen Zielwerten und Toleranzbereichen.</p>
+    </div>
+  </div>
+
+  <h3 style="margin: 3rem 0 1.5rem; font-size: 1.1rem; color: var(--green);">Modus 2: Rede generieren</h3>
+  <div class="flow">
+    <div class="node">
+      <h4>Briefing</h4>
+      <p>Thema, Zielgruppe,<br>Dauer, Quellen</p>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="node">
+      <h4>Gliederung</h4>
+      <p>Nach DNA-Blueprint,<br>User bestätigt</p>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="node">
+      <h4>Generierung + Validierung</h4>
+      <p>Abschnittsweise, Score-Check,<br>max. 3 Iterationen</p>
+    </div>
+  </div>
+</section>
+
+<!-- DIAGNOSE -->
+<section id="diagnose">
+  <h2>Konvergenz-Diagnose</h2>
+  <p class="subtitle">
+    Reichen deine Beispielreden? Der Skill prüft automatisch ob die DNA stabil wird —
+    oder ob mehr Material nötig ist.
+  </p>
+
+  <div class="score-demo">
+    <span class="header">KONVERGENZ-DIAGNOSE</span><br>
+    <span style="color:var(--border)">&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;</span><br>
+    <br>
+    Rede 1-2: Basis-Analyse<br>
+    <br>
+    <span style="color:var(--accent)">Rede 3 "gruswort-juni.txt" (450 W&ouml;rter):</span><br>
+    &nbsp;&nbsp;Metriken-Drift: &nbsp;&nbsp;&nbsp;&Oslash; 12.3% (4 signifikante Shifts)<br>
+    &nbsp;&nbsp;Neue Signalw&ouml;rter: +8 (innovation, wandel, zukunft...)<br>
+    &nbsp;&nbsp;Neue Rhetorik: &nbsp;&nbsp;&nbsp;trikolon<br>
+    &nbsp;&nbsp;<span style="color:var(--accent)">&#128309; Diese Rede hat den Stil ERWEITERT</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&#8627; Satzl&auml;nge: 14.2 &rarr; 12.8 (-9.9%)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&#8627; Stakkato-Quote: 12.0 &rarr; 18.5 (+54.2%)<br>
+    <br>
+    <span style="color:var(--amber)">Rede 4 "impulsvortrag-sept.txt" (720 W&ouml;rter):</span><br>
+    &nbsp;&nbsp;Metriken-Drift: &nbsp;&nbsp;&nbsp;&Oslash; 6.1% (2 signifikante Shifts)<br>
+    &nbsp;&nbsp;Neue Signalw&ouml;rter: +3<br>
+    &nbsp;&nbsp;Neue Rhetorik: &nbsp;&nbsp;&nbsp;keine neuen Muster<br>
+    &nbsp;&nbsp;<span style="color:var(--amber)">&#128993; Diese Rede hat den Stil VERFEINERT</span><br>
+    <br>
+    <span style="color:var(--green)">Rede 5 "ansprache-herbst.txt" (680 W&ouml;rter):</span><br>
+    &nbsp;&nbsp;Metriken-Drift: &nbsp;&nbsp;&nbsp;&Oslash; 3.1% (0 signifikante Shifts)<br>
+    &nbsp;&nbsp;Neue Signalw&ouml;rter: +1<br>
+    &nbsp;&nbsp;Neue Rhetorik: &nbsp;&nbsp;&nbsp;keine neuen Muster<br>
+    &nbsp;&nbsp;<span class="pass">&#128994; Diese Rede hat den Stil BEST&Auml;TIGT</span><br>
+    <br>
+    <span style="color:var(--border)">&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;</span><br>
+    <span class="pass">&#128994; GESAMTBEWERTUNG: STABIL</span><br>
+    <span style="color:var(--text-muted)">&nbsp;&nbsp;&nbsp;DNA konvergiert (&Oslash; Shift der letzten Reden: 3.1%). 5 Reden sind eine solide Basis.</span>
+  </div>
+
+  <div class="cards" style="grid-template-columns: repeat(4, 1fr); margin-top: 2rem;">
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:1.6rem; font-weight:800; color:var(--green);">STABIL</div>
+      <p>DNA konvergiert,<br>genug Material</p>
+    </div>
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:1.6rem; font-weight:800; color:var(--amber);">FAST STABIL</div>
+      <p>Leichte Shifts,<br>1-2 Reden mehr</p>
+    </div>
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:1.6rem; font-weight:800; color:var(--red);">INSTABIL</div>
+      <p>Deutliche Shifts,<br>mehr Reden n&ouml;tig</p>
+    </div>
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:1.6rem; font-weight:800; color:var(--text-muted);">UNZUREI-<br>CHEND</div>
+      <p>Unter 3 Reden,<br>Minimum fehlt</p>
+    </div>
+  </div>
+</section>
+
+<!-- METRIKEN -->
+<section id="metriken">
+  <h2>47 messbare Dimensionen</h2>
+  <p class="subtitle">
+    Jeder Stil hat einen quantifizierbaren Fingerabdruck. Diese Metriken machen ihn reproduzierbar.
+  </p>
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Kategorie</th>
+        <th>Metriken</th>
+        <th>Werkzeug</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Satzebene</strong></td>
+        <td>Satzlänge (Mittelwert, Median, Stddev, Min/Max), Satztypen-Mix, Satzanfänge-Verteilung, Stakkato-Quote</td>
+        <td><span class="tool python" style="font-size:0.7rem">spaCy</span></td>
+      </tr>
+      <tr>
+        <td><strong>Wortebene</strong></td>
+        <td>Type-Token-Ratio, Hapax-Legomena, Wortlänge, Füllwort-Profil, Modalverb-Frequenz, Top-50 Signalwörter</td>
+        <td><span class="tool python" style="font-size:0.7rem">spaCy</span></td>
+      </tr>
+      <tr>
+        <td><strong>Pronomen</strong></td>
+        <td>Ich/Wir/Sie/Man/Es-Verteilung, Wir/Ich-Verhältnis, Gesamt-Pronomen-Anteil</td>
+        <td><span class="tool python" style="font-size:0.7rem">spaCy</span></td>
+      </tr>
+      <tr>
+        <td><strong>Interpunktion</strong></td>
+        <td>Gedankenstriche, Doppelpunkte, Semikolons, Ellipsen, Ausrufezeichen, Fragezeichen, Klammern, Kommas (je /1000 W.)</td>
+        <td><span class="tool python" style="font-size:0.7rem">Python</span></td>
+      </tr>
+      <tr>
+        <td><strong>Lesbarkeit</strong></td>
+        <td>Flesch-Reading-Ease (DE), Silben/Wort, Lange-Wörter-Anteil, Wörter/Satz</td>
+        <td><span class="tool python" style="font-size:0.7rem">textstat</span></td>
+      </tr>
+      <tr>
+        <td><strong>Grammatik</strong></td>
+        <td>POS-Verteilung, Aktiv/Passiv-Verhältnis, Tempus-Verteilung, Adjektiv-Dichte, Verb/Substantiv-Ratio</td>
+        <td><span class="tool python" style="font-size:0.7rem">spaCy</span></td>
+      </tr>
+      <tr>
+        <td><strong>Rhetorik</strong></td>
+        <td>Anaphern, Epiphern, Trikola, Rhetorische Fragen, Antithesen, bewusste Wiederholungen (je /1000 W.)</td>
+        <td><span class="tool python" style="font-size:0.7rem">Regex+NLP</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 3rem; font-size: 1.1rem;">Qualitative Dimensionen (Claude)</h3>
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Was wird erfasst</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Tonalität &amp; Register</td><td>Formalitätsgrad, emotionale Temperatur, Autoritätsstil, Humor-Typ, Empathie-Signale</td></tr>
+      <tr><td>Argumentation</td><td>Muster, Evidenz-Präferenz, Gegenargument-Behandlung, Logos/Pathos/Ethos-Gewichtung</td></tr>
+      <tr><td>Aufbau-Blueprint</td><td>Eröffnungstechnik, Übergänge, Spannungsbogen, Schluss-Technik, Proportionen</td></tr>
+      <tr><td>Zielgruppen-Ansprache</td><td>Anrede-Muster, Inklusion, Vorwissen-Annahme, Appell-Frequenz</td></tr>
+      <tr><td>Bildsprache</td><td>Metaphern-Dichte, bevorzugte Bildfelder, Vergleiche, Abstrakt/Konkret</td></tr>
+      <tr><td>Rhythmus</td><td>Sprechbarkeit, Pause-Markierungen, Emphase-Wiederholungen, Atem-Einheiten</td></tr>
+      <tr><td>Quellen-Integration</td><td>Zitat-Einbau, Quellennennung, Daten-Präsentation</td></tr>
+      <tr><td>Anti-Patterns</td><td>Was bewusst NICHT getan wird, vermiedene Wörter/Konstruktionen</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- VALIDIERUNG -->
+<section id="validierung">
+  <h2>Automatische Validierung</h2>
+  <p class="subtitle">
+    Jede generierte Rede wird gegen die DNA-Metriken geprüft. Abweichungen werden identifiziert
+    und iterativ korrigiert.
+  </p>
+  <div class="score-demo">
+    <span class="header">Dimension                          Ziel      Ist      Abw.    Status</span><br>
+    <span style="color:var(--border)">&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; &#9472;&#9472;&#9472;&#9472;&#9472;&#9472; &#9472;&#9472;&#9472;&#9472;&#9472;&#9472; &#9472;&#9472;&#9472;&#9472;&#9472;&#9472; &#9472;&#9472;&#9472;&#9472;&#9472;</span><br>
+    <span class="pass">Satzl&auml;nge (&Oslash; W&ouml;rter)             14.2      15.8     11.3%  &#10003;</span><br>
+    <span class="warn">Stakkato-Quote                     18.0      12.0     33.3%  &#9888;&#65039;</span><br>
+    <span class="pass">Type-Token-Ratio                    0.42      0.45      7.1%  &#10003;</span><br>
+    <span class="pass">F&uuml;llw&ouml;rter/1000                    8.5       7.2     15.3%  &#10003;</span><br>
+    <span class="pass">Aktiv-Anteil (%)                   78.0      74.0      5.1%  &#10003;</span><br>
+    <span class="pass">Wir/Ich-Verh&auml;ltnis                  2.1       1.8     14.3%  &#10003;</span><br>
+    <span class="warn">Fragezeichen/1000                   8.0       3.2     60.0%  &#9888;&#65039;</span><br>
+    <span class="pass">Flesch-Index                       52.0      48.0      7.7%  &#10003;</span><br>
+    <span class="pass">Silben/Wort                         1.82      1.88      3.3%  &#10003;</span><br>
+    <span class="pass">Kommas/1000                        62.0      58.0      6.5%  &#10003;</span><br>
+    <br>
+    <span class="header">STIL-&Uuml;BEREINSTIMMUNG: 80/100  (8/10 Dimensionen im Toleranzbereich)</span><br>
+    <span style="color:var(--amber)">&rarr; Gute &Uuml;bereinstimmung, einzelne Dimensionen weichen ab</span>
+  </div>
+
+  <div class="cards" style="grid-template-columns: repeat(4, 1fr); margin-top: 2rem;">
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:2rem; font-weight:800; color:var(--green);">&ge;85</div>
+      <p>Sehr gut</p>
+    </div>
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:2rem; font-weight:800; color:var(--accent);">70-84</div>
+      <p>Gut</p>
+    </div>
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:2rem; font-weight:800; color:var(--amber);">50-69</div>
+      <p>Moderat</p>
+    </div>
+    <div class="card" style="text-align:center; padding:1.2rem">
+      <div style="font-size:2rem; font-weight:800; color:var(--red);">&lt;50</div>
+      <p>Niedrig</p>
+    </div>
+  </div>
+</section>
+
+<!-- SPRECHDAUER -->
+<section id="dauer">
+  <h2>Sprechdauer &amp; Wortanzahl</h2>
+  <p class="subtitle">
+    Sage einfach "schreibe eine Rede für 10 Minuten" — der Skill rechnet automatisch um.
+    Standard: 130 Wörter pro Minute (ruhiger Vortragsstil). Individuell anpassbar.
+  </p>
+  <div class="duration-grid">
+    <div class="duration-item">
+      <div class="minutes">3</div>
+      <div class="label">Minuten</div>
+      <div class="words">~390 Wörter</div>
+    </div>
+    <div class="duration-item">
+      <div class="minutes">5</div>
+      <div class="label">Minuten</div>
+      <div class="words">~650 Wörter</div>
+    </div>
+    <div class="duration-item">
+      <div class="minutes">10</div>
+      <div class="label">Minuten</div>
+      <div class="words">~1.300 Wörter</div>
+    </div>
+    <div class="duration-item">
+      <div class="minutes">15</div>
+      <div class="label">Minuten</div>
+      <div class="words">~1.950 Wörter</div>
+    </div>
+    <div class="duration-item">
+      <div class="minutes">20</div>
+      <div class="label">Minuten</div>
+      <div class="words">~2.600 Wörter</div>
+    </div>
+    <div class="duration-item">
+      <div class="minutes">30</div>
+      <div class="label">Minuten</div>
+      <div class="words">~3.900 Wörter</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEEDBACK LOOP -->
+<section id="feedback">
+  <h2>Selbstlernende Feedback-Schleife</h2>
+  <p class="subtitle">
+    Der Skill lernt aus jeder Korrektur. Zwei Feedback-Formen werden akzeptiert.
+  </p>
+
+  <div class="cards" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+    <div class="card">
+      <h3>Text-Feedback</h3>
+      <p>
+        "Die Rede ist zu formell."<br>
+        "Mehr rhetorische Fragen."<br>
+        "Der Schluss ist zu abrupt."<br><br>
+        Claude interpretiert das Feedback, identifiziert welche DNA-Dimensionen betroffen sind
+        und schlägt konkrete Anpassungen vor.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Überarbeitete Rede</h3>
+      <p>
+        Du korrigierst die Rede selbst. Der Skill analysiert automatisch was du geändert hast.<br><br>
+        Python berechnet die exakten Deltas: Satzlänge +51%, Stakkato -40%, Füllwörter +12%.
+        Daraus leitet der Skill ab, wie die DNA angepasst werden muss.
+      </p>
+    </div>
+  </div>
+
+  <div class="loop-visual">
+    <div class="loop-node">
+      <h4>Rede generieren</h4>
+      <p>Modus 2</p>
+    </div>
+    <div class="loop-arrow">&rarr;</div>
+    <div class="loop-node">
+      <h4>Feedback geben</h4>
+      <p>Text oder Korrektur</p>
+    </div>
+    <div class="loop-arrow">&rarr;</div>
+    <div class="loop-node">
+      <h4>Delta-Analyse</h4>
+      <p>Python + Claude</p>
+    </div>
+    <div class="loop-arrow">&rarr;</div>
+    <div class="loop-node">
+      <h4>DNA + Skill updaten</h4>
+      <p>Versioniert</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 1rem; border-color: var(--amber);">
+    <h3>Skill-Selbstverbesserung</h3>
+    <p>
+      Der Skill kann sich selbst verbessern. Wenn Feedback zeigt, dass bestimmte Instruktionen
+      zu systematischen Fehlern führen, schlägt der Skill eine neue Version seiner eigenen
+      Skill-Datei vor. Alte Versionen werden als Backup gespeichert. Jede Änderung wird erst
+      nach Bestätigung übernommen.
+    </p>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <h2>Installation &amp; Start</h2>
+  <p class="subtitle">In drei Schritten zur ersten Sprach-DNA.</p>
+
+  <div class="pipeline">
+    <div class="step done">
+      <h4>1. Repository klonen</h4>
+      <div class="code-block">
+        <span class="cmd">git clone</span> &lt;repository-url&gt; RedenSkill<br>
+        <span class="cmd">cd</span> RedenSkill
+      </div>
+    </div>
+    <div class="step done">
+      <h4>2. Dependencies installieren</h4>
+      <div class="code-block">
+        <span class="cmd">bash</span> scripts/setup.sh<br>
+        <br>
+        <span class="comment"># Oder manuell:</span><br>
+        <span class="cmd">pip install</span> -r scripts/requirements.txt<br>
+        <span class="cmd">python -m spacy download</span> de_core_news_lg
+      </div>
+      <p>Installiert spaCy (MIT), deutsches Sprachmodell (MIT), textstat (MIT). Ca. 600 MB.</p>
+    </div>
+    <div class="step done">
+      <h4>3. Material ablegen</h4>
+      <div class="code-block">
+        <span class="comment"># Beispielreden (mind. 3 empfohlen)</span><br>
+        <span class="cmd">cp</span> meine-reden/*.txt <span class="highlight">archive/beispielreden/</span><br>
+        <br>
+        <span class="comment"># Referenzquellen (optional)</span><br>
+        <span class="cmd">cp</span> quellenmaterial/*.md <span class="highlight">archive/quellen/</span>
+      </div>
+    </div>
+    <div class="step">
+      <h4>4. Skill starten</h4>
+      <div class="code-block">
+        <span class="comment"># In Claude Code (CLI, Desktop App, oder IDE Extension):</span><br>
+        <span class="highlight">/project:reden</span>
+      </div>
+      <p>Wähle "Sprach-DNA erstellen" beim ersten Durchlauf.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 3rem; margin-bottom: 1rem; font-size: 1.1rem;">Voraussetzungen</h3>
+  <table class="metrics-table">
+    <thead>
+      <tr><th>Komponente</th><th>Version</th><th>Lizenz</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Python</td><td>3.9+</td><td>PSF</td></tr>
+      <tr><td>Claude Code</td><td>aktuell</td><td>Anthropic</td></tr>
+      <tr><td>spaCy</td><td>3.7+</td><td>MIT</td></tr>
+      <tr><td>de_core_news_lg</td><td>aktuell</td><td>MIT</td></tr>
+      <tr><td>textstat</td><td>0.7+</td><td>MIT</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- STRUKTUR -->
+<section id="struktur">
+  <h2>Projektstruktur</h2>
+  <div class="code-block">
+    <span class="highlight">RedenSkill/</span><br>
+    ├── <span class="highlight">.claude/commands/reden.md</span>    <span class="comment"># Skill + Orchestrator</span><br>
+    ├── <span class="highlight">references/</span><br>
+    │   ├── sprach-dna-template.md      <span class="comment"># DNA-Template (15 Abschnitte)</span><br>
+    │   ├── generierung-regeln.md       <span class="comment"># Qualitäts-Regeln mit Begründungen</span><br>
+    │   └── beispiele.md                <span class="comment"># Input→Output Beispiele</span><br>
+    ├── <span class="highlight">scripts/</span><br>
+    │   ├── analyze_style.py            <span class="comment"># Haupt-Pipeline</span><br>
+    │   ├── diagnose_convergence.py     <span class="comment"># Konvergenz-Diagnose</span><br>
+    │   ├── extract_metrics.py          <span class="comment"># 47 quantitative Dimensionen</span><br>
+    │   ├── detect_rhetoric.py          <span class="comment"># Rhetorische Figuren</span><br>
+    │   ├── validate_speech.py          <span class="comment"># Validierung (Score 0-100)</span><br>
+    │   ├── compare_feedback.py         <span class="comment"># Feedback-Delta-Analyse</span><br>
+    │   ├── requirements.txt<br>
+    │   └── setup.sh<br>
+    ├── <span class="highlight">archive/</span><br>
+    │   ├── beispielreden/              <span class="comment"># Beispielreden ablegen</span><br>
+    │   └── quellen/                    <span class="comment"># Referenzquellen ablegen</span><br>
+    ├── <span class="highlight">output/</span><br>
+    │   ├── sprach-dna/                 <span class="comment"># Generierte DNA + Metriken</span><br>
+    │   └── reden/                      <span class="comment"># Generierte Reden + Reports</span><br>
+    ├── CLAUDE.md<br>
+    ├── README.md<br>
+    └── index.html                      <span class="comment"># Diese Seite</span>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <h2>Häufige Fragen</h2>
+
+  <div class="faq-item">
+    <h4>Wie viele Beispielreden brauche ich?</h4>
+    <p>
+      Minimum 3, empfohlen 5-10. Mehr Reden ergeben stabilere Metriken. Bei nur 3 Reden können
+      Ausreißer (eine besonders kurze oder formelle Rede) die Durchschnittswerte verzerren.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Kann ich mehrere Stile verwalten?</h4>
+    <p>
+      Ja. Lege verschiedene Sets von Beispielreden an und erstelle je eine eigene Sprach-DNA.
+      In Modus 2 wählst du bei jedem Durchlauf welche DNA verwendet werden soll. So kannst du
+      z.B. einen formellen Konferenz-Stil und einen lockeren Team-Meeting-Stil parallel pflegen.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Was gehört in die Quellen?</h4>
+    <p>
+      Alles woraus sich die Rede inhaltlich speisen darf: Studien, Marktzahlen, Zitate,
+      Hintergrundinfos, Pressemitteilungen, interne Reports. Die Quellen beeinflussen den
+      Inhalt, nicht den Stil — der kommt ausschließlich aus der DNA.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Funktioniert es auch für englische Reden?</h4>
+    <p>
+      Prinzipiell ja, aber das Sprachmodell ist für Deutsch optimiert. Für Englisch müsste
+      in extract_metrics.py das Modell auf en_core_web_lg gewechselt und die Füllwort- und
+      Modalverb-Listen angepasst werden.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Brauche ich eine GPU?</h4>
+    <p>
+      Nein. spaCy läuft effizient auf der CPU. Die Analyse von 10 Reden dauert typisch 10-30
+      Sekunden. Das ist kein Deep Learning mit Millionen Parametern, sondern statistische
+      Sprachanalyse.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Was passiert mit meinen Reden?</h4>
+    <p>
+      Alles läuft lokal. Keine Daten werden an externe Server geschickt (außer an Claudes API
+      im Rahmen der normalen Claude Code Nutzung). Beispielreden, DNA und generierte Reden
+      bleiben auf deinem Rechner.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Wie genau ist die Stilübertragung?</h4>
+    <p>
+      Der Validierungs-Score misst die quantitative Übereinstimmung. Typische Scores bei guter
+      DNA liegen bei 75-90. Die qualitative Übereinstimmung (Tonalität, Argumentationsstil) lässt
+      sich nicht automatisiert messen — dafür gibt es die Feedback-Schleife.
+    </p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Wie ist die Lizenzierung?</h4>
+    <p>
+      Alle verwendeten Bibliotheken (spaCy, textstat, de_core_news_lg) stehen unter der
+      MIT-Lizenz und sind kommerziell uneingeschränkt nutzbar.
+    </p>
+  </div>
+</section>
+
+<!-- IMPRESSUM -->
+<section id="impressum" style="padding-bottom: 2rem;">
+  <h2>Impressum</h2>
+  <p class="subtitle">Angaben gemäß § 5 TMG</p>
+
+  <div class="cards" style="grid-template-columns: 1fr 1fr;">
+    <div class="card">
+      <h3>Verantwortlich</h3>
+      <p>
+        Mark Zimmermann<br>
+        Ehlersstraße 18C<br>
+        76187 Karlsruhe<br>
+        Deutschland
+      </p>
+      <p style="margin-top: 1rem;">
+        <strong>Kontakt:</strong><br>
+        E-Mail: <a href="mailto:schiff_spritziger7j@icloud.com" style="color: var(--accent); text-decoration: none;">schiff_spritziger7j@icloud.com</a>
+      </p>
+    </div>
+    <div class="card">
+      <h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
+      <p>
+        Mark Zimmermann<br>
+        Ehlersstraße 18C<br>
+        76187 Karlsruhe
+      </p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3>Haftungsausschluss</h3>
+    <p>
+      Die Repositories werden privat und zum Nutzen der Gemeinschaft erstellt.
+      Der Betreiber übernimmt keine Haftung für den Einsatz, die Nutzung oder
+      die Weiterverwendung der in den Repositories enthaltenen Inhalte. Es wird
+      keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Inhalte
+      übernommen. Externe Links unterliegen der Verantwortung der jeweiligen
+      Betreiber. Die Inhalte unterliegen dem deutschen Urheberrecht; es gelten
+      die jeweiligen Repository-Lizenzen.
+    </p>
+    <p style="margin-top: 1rem; color: var(--text-muted);">
+      &copy; 2026 Mark Zimmermann
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>RedenSkill &mdash; Apache-2.0 &mdash; &copy; 2026 Mark Zimmermann</div>
+  <div>
+    <a href="#impressum">Impressum</a> &middot;
+    Inspiriert von <a href="https://github.com/zacharyhorvitz/TinyStyler" target="_blank">TinyStyler</a> (EMNLP 2024)
+  </div>
+</footer>
+
+</body>
+</html>
