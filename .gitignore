@@ -8,3 +8,9 @@ env/
 dist/
 build/
 .DS_Store
+
+# Sensible Inhalte — nicht tracken
+archive/beispielreden/
+archive/quellen/
+output/
+references/beispiele.md

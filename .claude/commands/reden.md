@@ -35,6 +35,7 @@ ARCHIVE_REDEN   = archive/beispielreden/
 ARCHIVE_QUELLEN = archive/quellen/
 OUTPUT_DNA      = output/sprach-dna/
 OUTPUT_REDEN    = output/reden/
+LEARNINGS       = output/sprach-dna/LEARNINGS-{Name}.md
 ```
 
 ## Einstieg
@@ -44,9 +45,10 @@ Zeige mit `AskUserQuestion`:
 **Frage:** "Welchen Modus möchtest du starten?"
 
 1. **Sprach-DNA erstellen** – Analysiert Beispielreden + Quellen → Stilprofil
-2. **Rede generieren** – Nutzt DNA + Briefing → neue Rede im Zielstil
-3. **Feedback & Lernen** – Aus Korrekturen lernen → DNA + Skill verbessern
-4. **Skill exportieren** – Aktuelle Skill-Version als Paket exportieren
+2. **Rede generieren** – Nutzt DNA + Learnings + Briefing → neue Rede im Zielstil
+3. **Feedback & Lernen** – Aus Korrekturen lernen → DNA + Learnings aktualisieren
+4. **Stil-Check** – Rede gegen DNA prüfen: stammt sie vom Redner?
+5. **Skill exportieren** – Aktuelle Skill-Version als Paket exportieren
 
 ---
 
@@ -175,6 +177,11 @@ rhetorische Figuren und Quellen platziert werden.
 
 Lies `references/generierung-regeln.md` für die Qualitäts-Regeln.
 
+Prüfe ob `output/sprach-dna/LEARNINGS-{Name}.md` existiert. Falls ja: lies
+die Datei vollständig. Jedes Learning enthält eine konkrete Regel die bei
+der Generierung beachtet werden muss — sie haben Vorrang vor generischen
+DNA-Zielwerten, weil sie aus echtem Feedback des Users stammen.
+
 Generiere abschnittsweise. Für jeden Abschnitt den relevanten DNA-Abschnitt
 konsultieren. Beachte:
 - Quantitative Zielwerte aus DNA Abschnitt 14
@@ -205,7 +212,7 @@ Max 3 Iterationen. Score ≥ 85 → User die Rede präsentieren.
 
 ---
 
-## MODUS 3: Feedback & Selbstverbesserung
+## MODUS 3: Feedback & Lernen
 
 Zwei Eingänge — der User kann Feedback als Text geben ODER eine überarbeitete
 Version der Rede liefern. Beides zusammen ist auch möglich.
@@ -237,37 +244,107 @@ Lies den Feedback-Report. Identifiziere:
 Zeige dem User eine strukturierte Zusammenfassung:
 - Erkannte Korrekturen mit vermuteter Absicht
 - DNA-Update-Empfehlungen (welcher Abschnitt, wie anpassen)
-- Skill-Verbesserungen (welche Instruktion hat zum Problem geführt)
+- Vorgeschlagene Learnings für künftige Generierungen
 
 ### Phase 3d: DNA aktualisieren
 
 **AskUserQuestion:** "DNA anhand des Feedbacks aktualisieren?"
 - "Ja" → Zielwerte anpassen, qualitative Beschreibungen korrigieren,
   Feedback-Eintrag in Abschnitt 15 ergänzen
-- "Nein" → Learnings nur dokumentieren
+- "Nein" → Nur Learnings dokumentieren (Phase 3e)
 
-### Phase 3e: Skill-Selbstverbesserung
+### Phase 3e: Learnings speichern
 
-**AskUserQuestion:** "Soll der Skill selbst verbessert werden?"
-- "Ja, Vorschlag zeigen" → Konkrete Änderungen vorschlagen (s.u.)
-- "Nein" → Fertig
+Schreibe die Erkenntnisse in `output/sprach-dna/LEARNINGS-{Name}.md`.
+Falls die Datei noch nicht existiert, erstelle sie mit diesem Format:
 
-Bei "Ja":
-1. Lies `.claude/commands/reden.md`
-2. Identifiziere welche Instruktion zum Problem geführt hat
-3. Zeige konkreten Änderungsvorschlag mit Begründung:
-   ```
-   SKILL-VERBESSERUNG v{N+1}
-   Änderung 1: [Bereich] — Problem → Lösung → Betroffene Phase
-   ```
-4. **AskUserQuestion:** "Änderungen übernehmen?"
-   - "Ja" → Backup als `reden-v{N}.md.bak`, Änderungen durchführen, Version erhöhen
-   - "Teilweise" → User wählt welche
-   - "Nein" → Verwerfen
+```markdown
+# Learnings: {Name}
+
+> Akkumulierte Erkenntnisse aus Feedback-Runden.
+> Wird bei jeder Reden-Generierung automatisch mitgelesen.
+> Learnings haben Vorrang vor generischen DNA-Zielwerten.
+
+---
+```
+
+Hänge dann das neue Learning an:
+
+```markdown
+### L-{NNN}: {Kurztitel} — {Datum}
+- **Rede:** REDE-{Thema}-{Datum}.md
+- **Problem:** {Was war nicht stimmig?}
+- **Korrektur:** {Was wurde geändert?}
+- **Regel für künftige Reden:** {Konkrete, umsetzbare Anweisung}
+- **Betroffene DNA-Abschnitte:** {Nummern}
+```
+
+Die `{NNN}` Nummer ist fortlaufend (001, 002, ...). Zeige dem User das
+fertige Learning zur Bestätigung bevor es gespeichert wird.
+
+Prüfe ob es bereits Learnings gibt die widersprüchlich sind — falls ja,
+weise den User darauf hin und schlage vor, das ältere Learning zu
+aktualisieren oder zu entfernen.
 
 ---
 
-## MODUS 4: Skill exportieren
+## MODUS 4: Stil-Check (Authentizitätsprüfung)
+
+Prüft ob eine Rede zum DNA-Profil passt — also ob sie stilistisch vom Redner
+stammen könnte. Nützlich um zu entscheiden ob eine Rede als Trainingsmaterial
+(Beispielrede) geeignet ist oder ob sie noch angepasst werden muss.
+
+### Phase 4a: Input
+
+**AskUserQuestion:** "Welche Rede soll geprüft werden?"
+- "Datei angeben" → User gibt Pfad zur Rede
+- "Aus output/reden/ wählen" → Zeige vorhandene Reden zur Auswahl
+
+Prüfe ob eine DNA existiert. Mehrere vorhanden → User wählt welche.
+
+### Phase 4b: Quantitative Prüfung (Python)
+
+```bash
+python scripts/validate_speech.py {Pfad-zur-Rede} output/sprach-dna/style-metrics.json
+```
+
+Lies die Ergebnisse. Der Validierungs-Score gibt die quantitative
+Übereinstimmung mit dem Stil.
+
+### Phase 4c: Qualitative Prüfung (Claude)
+
+Lies die Rede und die DNA vollständig. Prüfe:
+1. **Tonalität** — Stimmt der Formalitätsgrad? Die emotionale Temperatur?
+2. **Satz-Architektur** — Passt der Rhythmus? Stakkato-Muster?
+3. **Rhetorische Figuren** — Werden die DNA-typischen Mittel verwendet?
+4. **Wort-DNA** — Signalwörter, Füllwort-Profil, Pronomen-Verhältnis?
+5. **Anti-Patterns** — Tauchen Dinge auf die der Stil vermeidet?
+6. **Bildsprache** — Passen Bildfelder und Metaphern-Dichte?
+
+### Phase 4d: Ergebnis
+
+Zeige ein Verdikt mit Begründung:
+
+| Verdikt | Score | Bedeutung |
+|---------|-------|-----------|
+| **Authentisch** | ≥85 | Passt zum Redner, kann als Trainingsmaterial dienen |
+| **Teilweise passend** | 60-84 | Grundstil erkennbar, aber Abweichungen vorhanden |
+| **Stilfremd** | <60 | Passt nicht zum Profil |
+
+Für jede Abweichung:
+- Was genau weicht ab (mit Zitat)
+- Wie würde der Redner es laut DNA formulieren
+- Betroffener DNA-Abschnitt
+
+**AskUserQuestion:** "Wie weiter?"
+- "Als Trainingsmaterial übernehmen" → Kopiere die Rede nach `archive/beispielreden/`
+  und empfehle DNA-Neuanalyse (Modus 1)
+- "Rede anpassen" → Wechsel zu Modus 2 mit den Abweichungen als Vorgabe
+- "Fertig" → Ergebnis nur dokumentieren
+
+---
+
+## MODUS 5: Skill exportieren
 
 Exportiert die aktuelle Skill-Version als lesbares Paket nach `output/skill-export/`.
 
@@ -280,39 +357,19 @@ Exportiert die aktuelle Skill-Version als lesbares Paket nach `output/skill-expo
    cp .claude/commands/reden.md output/skill-export/SKILL-reden.md
    cp references/sprach-dna-template.md output/skill-export/references/
    cp references/generierung-regeln.md output/skill-export/references/
-   cp references/beispiele.md output/skill-export/references/
+   cp references/beispiele.md output/skill-export/references/ 2>/dev/null
    ```
-3. Falls Backups existieren (`.claude/commands/reden-v*.md.bak`), kopiere diese auch:
-   ```bash
-   cp .claude/commands/reden-v*.md.bak output/skill-export/ 2>/dev/null
-   ```
-4. Erstelle eine `output/skill-export/VERSION.md` mit:
+3. Erstelle eine `output/skill-export/VERSION.md` mit:
    ```markdown
    # RedenSkill Export
    - Exportiert: {Datum + Uhrzeit}
-   - Version: {aktuelle Version aus dem Skill-Header}
    - Dateien:
      - SKILL-reden.md (Skill-Definition + Orchestrator)
      - references/sprach-dna-template.md
      - references/generierung-regeln.md
-     - references/beispiele.md
-     {- reden-v{N}.md.bak (falls vorhanden)}
+     - references/beispiele.md (falls vorhanden)
    ```
-5. Zeige dem User den Pfad und eine Zusammenfassung:
-   ```
-   Skill exportiert nach: output/skill-export/
-   Version: v{X}
-   Dateien: {N} Dateien ({X} KB)
-   ```
-
----
-
-## Versionierung
-
-Bei jeder Selbstverbesserung (Phase 3e):
-- Backup: `.claude/commands/reden-v{N}.md.bak`
-- Version im Header erhöhen
-- Änderung in DNA Feedback-Historie dokumentieren
+4. Zeige dem User den Pfad und eine Zusammenfassung
 
 ---
 
@@ -322,3 +379,4 @@ Bei jeder Selbstverbesserung (Phase 3e):
 - **Keine Beispielreden**: Fordere min. 3 Reden an, erkläre wo sie abzulegen sind
 - **Keine DNA**: Schlage Modus 1 vor
 - **DNA veraltet** (viele Feedback-Einträge): Schlage Neuanalyse vor
+- **Keine Learnings**: Kein Problem — Learnings entstehen erst durch Feedback (Modus 3)

@@ -15,11 +15,11 @@ RedenSkill kombiniert zwei Ansätze:
 
 Das Ergebnis ist eine **Sprach-DNA**: ein vollständiges, belegtes Stilprofil das als Generierungsgrundlage dient. Generierte Reden werden automatisch gegen die DNA-Metriken validiert (Score 0-100) und iterativ nachgebessert.
 
-Der dritte Modus schließt den Kreis: Feedback (als Text oder als überarbeitete Rede) wird analysiert, die DNA wird aktualisiert, und der Skill kann sich selbst verbessern.
+Der Feedback-Modus schließt den Kreis: Korrekturen werden analysiert, die DNA wird aktualisiert, und akkumulierte Learnings fließen in jede weitere Generierung ein. Ein Stil-Check prüft ob eine Rede zum Profil passt — und ob sie als Trainingsmaterial geeignet ist.
 
 ---
 
-## Drei Modi
+## Fünf Modi
 
 ### Modus 1: Sprach-DNA erstellen
 
@@ -35,25 +35,43 @@ Beispielreden + Quellen → Konvergenz-Check → Python-Analyse → Claude-Analy
 ### Modus 2: Rede generieren
 
 ```
-DNA + Briefing + Quellen → Gliederung → Generierung → Validierung → Rede
+DNA + Learnings + Briefing + Quellen → Gliederung → Generierung → Validierung → Rede
 ```
 
 - Briefing aufnehmen (Thema, Zielgruppe, Kernbotschaft, Länge)
+- Learnings aus bisherigem Feedback automatisch mitlesen
 - Gliederung nach DNA-Blueprint erstellen
-- Rede abschnittsweise generieren (DNA als Stil-Constraint)
+- Rede abschnittsweise generieren (DNA + Learnings als Stil-Constraint)
 - Python validiert gegen Metriken (Score 0-100)
 - Iterative Verfeinerung bis Score ≥ 85
 
-### Modus 3: Feedback & Selbstverbesserung
+### Modus 3: Feedback & Lernen
 
 ```
-Feedback/Korrektur → Delta-Analyse → DNA-Update → Skill-Verbesserung
+Feedback/Korrektur → Delta-Analyse → DNA-Update → Learnings speichern
 ```
 
 - Akzeptiert Text-Feedback ("zu formell") oder überarbeitete Reden
 - Python berechnet Deltas zwischen Original und Korrektur
 - Identifiziert welche DNA-Dimensionen angepasst werden müssen
-- Optional: Generiert eine verbesserte Version des Skills selbst
+- Speichert konkrete Regeln als Learnings (`LEARNINGS-{Name}.md`)
+- Learnings haben Vorrang vor generischen DNA-Zielwerten
+
+### Modus 4: Stil-Check
+
+```
+Rede + DNA → Quantitativer Vergleich + Qualitative Analyse → Authentizitäts-Verdikt
+```
+
+- Prüft ob eine Rede zum DNA-Profil passt (Score + Verdikt)
+- Identifiziert konkrete Abweichungen mit Zitaten
+- Verdikt: Authentisch (≥85) / Teilweise passend (60-84) / Stilfremd (<60)
+- Bei hoher Übereinstimmung: Rede als Trainingsmaterial übernehmen
+- Bei Abweichungen: Gezielt nachbessern oder DNA erweitern
+
+### Modus 5: Skill exportieren
+
+- Exportiert die aktuelle Skill-Version als lesbares Paket
 
 ---
 
@@ -142,11 +160,12 @@ Es erscheint die Modus-Auswahl.
 **Erster Durchlauf:**
 1. Modus 1 → Sprach-DNA erstellen
 2. Modus 2 → Erste Rede generieren
-3. Modus 3 → Feedback geben, DNA verfeinern
+3. Modus 3 → Feedback geben, DNA + Learnings aufbauen
 
 **Danach:**
-- Direkt Modus 2 für neue Reden (DNA bleibt erhalten)
+- Direkt Modus 2 für neue Reden (DNA + Learnings werden mitgelesen)
 - Modus 3 nach jeder Rede die korrigiert wird
+- Modus 4 um externe Reden auf Stil-Passung zu prüfen
 
 ---
 
@@ -174,7 +193,7 @@ RedenSkill/
 │   ├── beispielreden/              ← Hier Beispielreden ablegen
 │   └── quellen/                    ← Hier Referenzquellen ablegen
 ├── output/
-│   ├── sprach-dna/                 ← Generierte Stilprofile + Metriken
+│   ├── sprach-dna/                 ← Stilprofile + Metriken + Learnings
 │   └── reden/                      ← Generierte Reden + Validierungsreports
 ├── CLAUDE.md
 ├── README.md
@@ -274,7 +293,7 @@ Rede 4 "ansprache-herbst.txt" (680 Wörter):
 
 ## Feedback-Lernschleife
 
-Der Skill lernt aus jeder Korrektur:
+Der Skill lernt aus jeder Korrektur — akkumuliert als Learnings im Arbeitsverzeichnis:
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -286,9 +305,9 @@ Der Skill lernt aus jeder Korrektur:
                           ┌───────────────────────┼───────────────────┐
                           ▼                       ▼                   ▼
                    ┌──────────────┐     ┌──────────────┐   ┌──────────────┐
-                   │  DNA-Update  │     │ Skill-Update │   │  Nächste Rede│
-                   │ (Zielwerte   │     │ (Instruktion │   │  wird besser │
-                   │  anpassen)   │     │  verbessern) │   │              │
+                   │  DNA-Update  │     │  LEARNINGS-  │   │  Nächste Rede│
+                   │ (Zielwerte   │     │  {Name}.md   │   │  wird besser │
+                   │  anpassen)   │     │ (akkumuliert)│   │              │
                    └──────────────┘     └──────────────┘   └──────────────┘
 ```
 
@@ -296,7 +315,7 @@ Der Skill lernt aus jeder Korrektur:
 - **Text:** "Die Rede ist zu formell, mehr Umgangssprache"
 - **Überarbeitete Rede:** Du korrigierst die Rede selbst, der Skill analysiert was du geändert hast
 
-Das Python-Script `compare_feedback.py` berechnet exakt welche Metriken du verschoben hast und empfiehlt DNA-Updates.
+Das Python-Script `compare_feedback.py` berechnet exakt welche Metriken du verschoben hast. Learnings werden pro DNA als `LEARNINGS-{Name}.md` gespeichert und bei jeder künftigen Generierung automatisch mitgelesen — sie haben Vorrang vor generischen DNA-Zielwerten.
 
 ---
 

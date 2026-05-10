@@ -463,36 +463,53 @@
 
 <!-- MODI -->
 <section id="modi">
-  <h2>Drei Modi, ein Workflow</h2>
+  <h2>F&uuml;nf Modi, ein Workflow</h2>
   <p class="subtitle">
-    Von der Stilanalyse bis zur fertigen Rede — mit eingebauter Lernschleife.
+    Von der Stilanalyse bis zur fertigen Rede — mit eingebauter Lernschleife und Qualit&auml;tssicherung.
   </p>
   <div class="cards">
     <div class="card">
       <div class="icon blue">1</div>
       <h3>Sprach-DNA erstellen</h3>
       <p>
-        Analysiert Beispielreden quantitativ (Python: Satzlänge, Rhetorik, Grammatik)
-        und qualitativ (Claude: Tonalität, Argumentation, Bildsprache). Ergebnis ist
-        ein vollständiges, belegtes Stilprofil mit 15 Abschnitten und messbaren Zielwerten.
+        Analysiert Beispielreden quantitativ (Python: Satzl&auml;nge, Rhetorik, Grammatik)
+        und qualitativ (Claude: Tonalit&auml;t, Argumentation, Bildsprache). Ergebnis ist
+        ein vollst&auml;ndiges, belegtes Stilprofil mit 15 Abschnitten und messbaren Zielwerten.
       </p>
     </div>
     <div class="card">
       <div class="icon green">2</div>
       <h3>Rede generieren</h3>
       <p>
-        Nimmt ein Briefing entgegen (Thema, Zielgruppe, Dauer in Minuten oder Wörtern),
-        erstellt eine Gliederung nach dem DNA-Blueprint, generiert die Rede abschnittsweise
-        und validiert automatisch gegen die DNA-Metriken. Iteriert bis Score &ge; 85.
+        Nutzt DNA + akkumulierte Learnings + Briefing. Erstellt eine Gliederung nach dem
+        DNA-Blueprint, generiert die Rede abschnittsweise und validiert automatisch gegen
+        die DNA-Metriken. Learnings aus Feedback haben Vorrang. Iteriert bis Score &ge; 85.
       </p>
     </div>
     <div class="card">
       <div class="icon amber">3</div>
       <h3>Feedback &amp; Lernen</h3>
       <p>
-        Akzeptiert Feedback als Text oder als überarbeitete Rede. Python berechnet die
-        Deltas, identifiziert was verschoben wurde, aktualisiert die DNA — und kann
-        sogar den Skill selbst verbessern (versioniertes Self-Improvement).
+        Akzeptiert Feedback als Text oder als &uuml;berarbeitete Rede. Python berechnet die
+        Deltas, identifiziert was verschoben wurde. Learnings werden als konkrete Regeln
+        in LEARNINGS-{Name}.md gespeichert und bei jeder Generierung mitgelesen.
+      </p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background: rgba(248,113,113,0.12);">4</div>
+      <h3>Stil-Check</h3>
+      <p>
+        Pr&uuml;ft ob eine Rede zum DNA-Profil passt — quantitativ (Score) und qualitativ
+        (Tonalit&auml;t, Rhetorik, Wort-DNA). Verdikt: Authentisch / Teilweise passend / Stilfremd.
+        Hilft zu entscheiden ob eine Rede als Trainingsmaterial geeignet ist.
+      </p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background: rgba(139,144,165,0.12);">5</div>
+      <h3>Skill exportieren</h3>
+      <p>
+        Exportiert die aktuelle Skill-Version als lesbares Paket — Skill-Definition,
+        Templates und Referenzdateien gebündelt in einem Verzeichnis.
       </p>
     </div>
   </div>
@@ -775,9 +792,9 @@
 
 <!-- FEEDBACK LOOP -->
 <section id="feedback">
-  <h2>Selbstlernende Feedback-Schleife</h2>
+  <h2>Feedback &amp; Learnings</h2>
   <p class="subtitle">
-    Der Skill lernt aus jeder Korrektur. Zwei Feedback-Formen werden akzeptiert.
+    Der Skill lernt aus jeder Korrektur. Learnings werden pro DNA gespeichert und bei jeder Generierung mitgelesen.
   </p>
 
   <div class="cards" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
@@ -818,18 +835,18 @@
     </div>
     <div class="loop-arrow">&rarr;</div>
     <div class="loop-node">
-      <h4>DNA + Skill updaten</h4>
-      <p>Versioniert</p>
+      <h4>DNA + Learnings</h4>
+      <p>Akkumuliert</p>
     </div>
   </div>
 
   <div class="card" style="margin-top: 1rem; border-color: var(--amber);">
-    <h3>Skill-Selbstverbesserung</h3>
+    <h3>Learnings statt Skill-Modifikation</h3>
     <p>
-      Der Skill kann sich selbst verbessern. Wenn Feedback zeigt, dass bestimmte Instruktionen
-      zu systematischen Fehlern führen, schlägt der Skill eine neue Version seiner eigenen
-      Skill-Datei vor. Alte Versionen werden als Backup gespeichert. Jede Änderung wird erst
-      nach Bestätigung übernommen.
+      Statt den Skill selbst zu ver&auml;ndern, werden Erkenntnisse als konkrete Regeln in
+      LEARNINGS-{Name}.md gespeichert — pro DNA, versionierbar, nachvollziehbar.
+      Bei jeder Generierung werden Learnings automatisch mitgelesen und haben Vorrang
+      vor generischen DNA-Zielwerten. Der Skill bleibt stabil, das Wissen w&auml;chst.
     </p>
   </div>
 </section>
@@ -916,7 +933,7 @@
     │   ├── beispielreden/              <span class="comment"># Beispielreden ablegen</span><br>
     │   └── quellen/                    <span class="comment"># Referenzquellen ablegen</span><br>
     ├── <span class="highlight">output/</span><br>
-    │   ├── sprach-dna/                 <span class="comment"># Generierte DNA + Metriken</span><br>
+    │   ├── sprach-dna/                 <span class="comment"># DNA + Metriken + Learnings</span><br>
     │   └── reden/                      <span class="comment"># Generierte Reden + Reports</span><br>
     ├── CLAUDE.md<br>
     ├── README.md<br>

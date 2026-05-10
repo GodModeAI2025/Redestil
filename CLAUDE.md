@@ -4,21 +4,23 @@ Sprach-DNA-Extraktion und Reden-Generator mit Feedback-Lernschleife.
 
 ## Skill
 
-Starte den Skill mit `/project:reden`. Er bietet drei Modi:
+Starte den Skill mit `/project:reden`. Er bietet fünf Modi:
 
 1. **Sprach-DNA erstellen**: Analysiert Beispielreden + Quellen → Stilprofil
-2. **Rede generieren**: Nutzt DNA + Briefing → neue Rede im Zielstil
-3. **Feedback & Lernen**: Analysiert Korrekturen → verbessert DNA + Skill
+2. **Rede generieren**: Nutzt DNA + Learnings + Briefing → neue Rede im Zielstil
+3. **Feedback & Lernen**: Analysiert Korrekturen → aktualisiert DNA + Learnings
+4. **Stil-Check**: Prüft ob eine Rede zum DNA-Profil passt (QS/Authentizität)
+5. **Skill exportieren**: Aktuelle Skill-Version als Paket exportieren
 
 ## Projektstruktur
 
 ```
-archive/beispielreden/   # Beispielreden (.txt/.md) hierher legen
-archive/quellen/         # Referenzquellen (.txt/.md) hierher legen
-scripts/                 # Python-Analyse-Pipeline
-output/sprach-dna/       # Generierte Stilprofile + Metriken
-output/reden/            # Generierte Reden
-.claude/commands/reden.md  # Skill-Definition
+archive/beispielreden/           # Beispielreden (.txt/.md) hierher legen
+archive/quellen/                 # Referenzquellen (.txt/.md) hierher legen
+scripts/                         # Python-Analyse-Pipeline
+output/sprach-dna/               # Stilprofile + Metriken + Learnings
+output/reden/                    # Generierte Reden
+.claude/commands/reden.md        # Skill-Definition
 ```
 
 ## Python-Dependencies
@@ -44,4 +46,4 @@ python -m spacy download de_core_news_lg
 - Alle Ausgaben auf Deutsch
 - Dateibenennung: `SPRACH-DNA-{Name}.md`, `REDE-{Thema}-{Datum}.md`
 - Metriken als JSON: `style-metrics.json`, `validation-*.json`, `feedback-*.json`
-- Skill-Backups: `reden-v{N}.md.bak`
+- Learnings pro DNA: `LEARNINGS-{Name}.md`
