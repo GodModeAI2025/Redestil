@@ -43,6 +43,7 @@ DNA + Learnings + Briefing + Quellen → Gliederung → Generierung → Validier
 - Gliederung nach DNA-Blueprint erstellen
 - Rede abschnittsweise generieren (DNA + Learnings als Stil-Constraint)
 - Python validiert gegen Metriken (Score 0-100)
+- Wortschatz-Abgleich: Wörter, die der Redner in seinen Beispielreden (fast) nie verwendet
 - Iterative Verfeinerung bis Score ≥ 85
 
 ### Modus 3: Feedback & Lernen
@@ -64,7 +65,7 @@ Rede + DNA → Quantitativer Vergleich + Qualitative Analyse → Authentizitäts
 ```
 
 - Prüft ob eine Rede zum DNA-Profil passt (Score + Verdikt)
-- Identifiziert konkrete Abweichungen mit Zitaten
+- Identifiziert konkrete Abweichungen mit Zitaten und stilfremden Wörtern
 - Verdikt: Authentisch (≥85) / Teilweise passend (60-84) / Stilfremd (<60)
 - Bei hoher Übereinstimmung: Rede als Trainingsmaterial übernehmen
 - Bei Abweichungen: Gezielt nachbessern oder DNA erweitern
@@ -179,7 +180,7 @@ RedenSkill/
 ├── references/
 │   ├── sprach-dna-template.md      ← Vollständiges DNA-Template
 │   ├── generierung-regeln.md       ← Qualitäts-Regeln mit Begründungen
-│   └── beispiele.md                ← Input→Output Beispiele
+│   └── beispiele.md                ← Input→Output Beispiele (optional, lokal, nicht versioniert)
 ├── scripts/
 │   ├── analyze_style.py            ← Haupt-Orchestrator (Metriken + Rhetorik)
 │   ├── diagnose_convergence.py     ← Konvergenz-Diagnose (genug Reden?)
@@ -187,6 +188,7 @@ RedenSkill/
 │   ├── detect_rhetoric.py          ← Rhetorische Figuren erkennen
 │   ├── validate_speech.py          ← Generierte Rede validieren (Score)
 │   ├── compare_feedback.py         ← Feedback-Delta-Analyse
+│   ├── check_vocabulary.py         ← Wortschatz-Abgleich (stilfremde Wörter)
 │   ├── requirements.txt
 │   └── setup.sh
 ├── archive/
@@ -253,6 +255,19 @@ Scoring:
 - **70-84**: Gut, einzelne Abweichungen
 - **50-69**: Moderat, Überarbeitung empfohlen
 - **< 50**: Niedrig, Rede sollte überarbeitet werden
+
+### Wortschatz-Abgleich
+
+Alle Metriken können im Toleranzbereich liegen, und trotzdem klingt ein einzelnes Wort sofort fremd. `check_vocabulary.py` vergleicht die Lemmata der Rede mit den Beispielreden und listet Inhaltswörter, die der Redner dort höchstens einmal verwendet:
+
+```
+AUFFÄLLIG — Lemma kommt höchstens 1x in den Beispielreden vor:
+    0x  fundamental              (fundamentale)
+    0x  nahtlos                  (nahtlose)
+    0x  transformation           (Transformation)
+```
+
+Namen, Zahlen und Vokabular aus `archive/quellen/` werden ausgenommen. Der Abgleich fließt nicht in den Score ein — Fachbegriffe landen hier zu Recht. Er ist eine Liste zum Anschauen, keine Streichliste.
 
 ---
 
@@ -336,6 +351,8 @@ Alle Abhängigkeiten sind MIT-lizenziert — kommerziell uneingeschränkt nutzba
 ## Inspiration
 
 Der Ansatz ist inspiriert von [TinyStyler](https://github.com/zacharyhorvitz/TinyStyler) (EMNLP 2024), einem Few-Shot Style Transfer System das Schreibstile in messbare Embeddings überführt. RedenSkill adaptiert dieses Prinzip — Style als quantifizierbaren Fingerabdruck behandeln — für deutschsprachige Reden und nutzt Claude statt eines Fine-Tuned T5-Modells für die Generierung.
+
+Die Idee des Wortschatz-Abgleichs (Wörter einer Vorlage gegen den eigenen Korpus prüfen, generierte Texte nicht ungeprüft in die Vergleichsbasis übernehmen) stammt aus [housestyle](https://github.com/TheKieselbach/housestyle) und ist hier eigenständig mit spaCy-Lemmata umgesetzt.
 
 ---
 

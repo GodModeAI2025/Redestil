@@ -6,6 +6,8 @@ shifts the aggregated metrics. Reports convergence status and recommends
 whether more material is needed.
 """
 
+from __future__ import annotations
+
 import json
 import sys
 import statistics
@@ -18,17 +20,18 @@ from extract_metrics import extract_single_text, aggregate_metrics
 from detect_rhetoric import analyze_rhetoric
 
 
+# Paths refer to the structure returned by aggregate_metrics()
 TRACKED_DIMENSIONS = [
-    ("Satzlänge (Ø)", ["sätze", "wörter_pro_satz", "mittelwert"]),
+    ("Satzlänge (Ø)", ["sätze", "wörter_pro_satz"]),
     ("Stakkato-Quote", ["sätze", "stakkato_quote"]),
     ("Type-Token-Ratio", ["wörter", "type_token_ratio"]),
-    ("Füllwörter/1000", ["wörter", "füllwörter", "pro_1000_wörter"]),
-    ("Modalverben/1000", ["wörter", "modalverben", "pro_1000_wörter"]),
-    ("Wortlänge (Ø)", ["wörter", "wortlänge", "mittelwert"]),
-    ("Aktiv-Anteil (%)", ["grammatik", "aktiv_passiv", "aktiv_prozent"]),
-    ("Adjektiv-Dichte (%)", ["grammatik", "adjektiv_dichte_prozent"]),
+    ("Füllwörter/1000", ["wörter", "füllwörter_pro_1000"]),
+    ("Modalverben/1000", ["wörter", "modalverben_pro_1000"]),
+    ("Wortlänge (Ø)", ["wörter", "wortlänge"]),
+    ("Aktiv-Anteil (%)", ["grammatik", "aktiv_prozent"]),
+    ("Adjektiv-Dichte (%)", ["grammatik", "adjektiv_dichte"]),
     ("Flesch-Index", ["lesbarkeit", "flesch_reading_ease"]),
-    ("Silben/Wort", ["lesbarkeit", "durchschnitt_silben_pro_wort"]),
+    ("Silben/Wort", ["lesbarkeit", "silben_pro_wort"]),
 ]
 
 SIGNIFICANCE_THRESHOLD = 10.0
@@ -114,14 +117,14 @@ def diagnose(speeches_dir: Path, output_path: Path | None = None):
         if prev_agg is not None:
             deltas = []
             for label, keys in TRACKED_DIMENSIONS:
-                old_val = get_nested(prev_agg, keys)
-                new_val = get_nested(agg, keys)
+                old_val = num(get_nested(prev_agg, *keys))
+                new_val = num(get_nested(agg, *keys))
                 pct = pct_change(old_val, new_val)
                 if pct is not None:
                     deltas.append({
                         "dimension": label,
-                        "vorher": round(old_val, 2) if old_val else None,
-                        "nachher": round(new_val, 2) if new_val else None,
+                        "vorher": round(old_val, 2) if old_val is not None else None,
+                        "nachher": round(new_val, 2) if new_val is not None else None,
                         "delta_pct": round(pct, 1),
                         "signifikant": abs(pct) > SIGNIFICANCE_THRESHOLD,
                     })
