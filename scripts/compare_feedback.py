@@ -5,6 +5,8 @@ Identifies what the user changed and maps deltas to SPRACH-DNA dimensions,
 producing an actionable improvement report.
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from pathlib import Path
@@ -90,8 +92,8 @@ def extract_deltas(original: dict, revised: dict) -> list[dict]:
 
 def compare_satztypen(original: dict, revised: dict) -> list[dict]:
     """Compare sentence type distributions."""
-    o_types = _get(original, "sätze", "satztypen_prozent", default={})
-    r_types = _get(revised, "sätze", "satztypen_prozent", default={})
+    o_types = get_nested(original, "sätze", "satztypen_prozent", default={})
+    r_types = get_nested(revised, "sätze", "satztypen_prozent", default={})
     all_keys = set(o_types) | set(r_types)
     changes = []
     for k in all_keys:

@@ -40,10 +40,11 @@ python -m spacy download de_core_news_lg
 | `detect_rhetoric.py` | Anaphern, Trikola, rhetorische Fragen, Antithesen |
 | `validate_speech.py` | Generierte Rede gegen DNA-Metriken validieren |
 | `compare_feedback.py` | Original vs. überarbeitete Rede → Learnings |
+| `check_vocabulary.py` | Wörter in einer Rede, die der Redner (fast) nie verwendet |
 
 ## Konventionen
 
 - Alle Ausgaben auf Deutsch
 - Dateibenennung: `SPRACH-DNA-{Name}.md`, `REDE-{Thema}-{Datum}.md`
-- Metriken als JSON: `style-metrics.json`, `validation-*.json`, `feedback-*.json`
+- Metriken als JSON: `style-metrics.json`, `validation-*.json`, `vokabular-*.json`, `feedback-*.json`
 - Learnings pro DNA: `LEARNINGS-{Name}.md`

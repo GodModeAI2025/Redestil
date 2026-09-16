@@ -2,8 +2,9 @@
 name: reden
 description: |
   Sprach-DNA-Extraktion, Reden-Generator und Feedback-Lernschleife.
-  Drei Modi: (1) Stilprofil aus Beispielreden erstellen, (2) neue Rede im
-  Zielstil generieren, (3) aus Feedback lernen und Skill selbst verbessern.
+  Fünf Modi: (1) Stilprofil aus Beispielreden erstellen, (2) neue Rede im
+  Zielstil generieren, (3) aus Feedback lernen (DNA + Learnings aktualisieren),
+  (4) Stil-Check einer Rede gegen die DNA, (5) Skill exportieren.
   Verwende diesen Skill wenn der User "Rede schreiben", "Sprach-DNA",
   "Stilanalyse", "Tonalität analysieren", "Rede generieren", "Redetext",
   "Ghostwriting", "Speech", "Stil übernehmen", "Feedback zur Rede",
@@ -14,7 +15,7 @@ description: |
 
 # RedenSkill – Orchestrator (v1.0)
 
-Du orchestrierst drei Modi und koordinierst Python-Analyse-Scripts mit
+Du orchestrierst fünf Modi und koordinierst Python-Analyse-Scripts mit
 Claudes qualitativer Analysefähigkeit. Antworte auf Deutsch.
 
 ## Referenz-Dateien
@@ -25,7 +26,7 @@ Lies diese bei Bedarf — sie enthalten Details die hier nur referenziert werden
 |-------|------------|
 | `references/sprach-dna-template.md` | In Phase 1c beim Erstellen der DNA |
 | `references/generierung-regeln.md` | In Phase 2c beim Generieren der Rede |
-| `references/beispiele.md` | Wenn du unsicher bist wie Output aussehen soll |
+| `references/beispiele.md` | Wenn du unsicher bist wie Output aussehen soll (lokal, nicht versioniert — fehlt die Datei, ohne sie weiterarbeiten) |
 
 ## Projektpfade
 
@@ -196,11 +197,20 @@ Speichere als `output/reden/REDE-{Thema}-{Datum}.md` mit Meta-Block.
 
 ```bash
 python scripts/validate_speech.py output/reden/REDE-{...}.md output/sprach-dna/style-metrics.json
+python scripts/check_vocabulary.py output/reden/REDE-{...}.md archive/beispielreden/ --quellen archive/quellen/
 ```
+
+Der Wortschatz-Abgleich listet Wörter, deren Lemma in den Beispielreden
+höchstens einmal vorkommt. Metriken können alle im Toleranzbereich liegen,
+während einzelne Wörter („nahtlos", „maßgeblich") sofort fremd klingen —
+genau das fängt dieser Check. Er fließt nicht in den Score ein. Prüfe jeden
+Treffer: Fachbegriffe und Themenwörter sind legitim, generische
+Füll- und Prunkwörter ersetzt du durch Formulierungen aus der DNA.
 
 ### Phase 2e: Iterative Verfeinerung
 
 Score < 85 → Abweichungen zeigen, gezielt überarbeiten, erneut validieren.
+Auffällige Wörter aus dem Wortschatz-Abgleich im selben Durchgang bereinigen.
 Max 3 Iterationen. Score ≥ 85 → User die Rede präsentieren.
 
 ### Phase 2f: Abschluss
@@ -306,10 +316,13 @@ Prüfe ob eine DNA existiert. Mehrere vorhanden → User wählt welche.
 
 ```bash
 python scripts/validate_speech.py {Pfad-zur-Rede} output/sprach-dna/style-metrics.json
+python scripts/check_vocabulary.py {Pfad-zur-Rede} archive/beispielreden/ --quellen archive/quellen/
 ```
 
 Lies die Ergebnisse. Der Validierungs-Score gibt die quantitative
-Übereinstimmung mit dem Stil.
+Übereinstimmung mit dem Stil. Der Wortschatz-Abgleich zeigt Wörter, die der
+Redner in seinen Beispielreden (fast) nie verwendet — nutze sie als Belege
+für die Abweichungen in Phase 4d.
 
 ### Phase 4c: Qualitative Prüfung (Claude)
 
@@ -338,7 +351,12 @@ Für jede Abweichung:
 
 **AskUserQuestion:** "Wie weiter?"
 - "Als Trainingsmaterial übernehmen" → Kopiere die Rede nach `archive/beispielreden/`
-  und empfehle DNA-Neuanalyse (Modus 1)
+  und empfehle DNA-Neuanalyse (Modus 1).
+  **Vorher prüfen:** Stammt die Rede aus Modus 2 und wurde vom Redner nicht
+  selbst überarbeitet oder freigegeben? Dann weise darauf hin, dass sie die
+  Vergleichsbasis verfälscht: Generiertes Vokabular landet im Korpus, und
+  der Wortschatz-Abgleich erkennt genau diese Wörter danach nicht mehr.
+  Nur übernehmen, wenn der User das bestätigt.
 - "Rede anpassen" → Wechsel zu Modus 2 mit den Abweichungen als Vorgabe
 - "Fertig" → Ergebnis nur dokumentieren
 
