@@ -198,6 +198,7 @@ Speichere als `output/reden/REDE-{Thema}-{Datum}.md` mit Meta-Block.
 ```bash
 python scripts/validate_speech.py output/reden/REDE-{...}.md output/sprach-dna/style-metrics.json
 python scripts/check_vocabulary.py output/reden/REDE-{...}.md archive/beispielreden/ --quellen archive/quellen/
+python scripts/check_function_words.py output/reden/REDE-{...}.md archive/beispielreden/
 ```
 
 Der Wortschatz-Abgleich listet Wörter, deren Lemma in den Beispielreden
@@ -207,11 +208,21 @@ genau das fängt dieser Check. Er fließt nicht in den Score ein. Prüfe jeden
 Treffer: Fachbegriffe und Themenwörter sind legitim, generische
 Füll- und Prunkwörter ersetzt du durch Formulierungen aus der DNA.
 
+Der Funktionswort-Abgleich zeigt die andere Hälfte: nicht welche Wörter
+fremd sind, sondern welche kleinen Wörter in falscher Menge vorkommen —
+„jedoch" statt „aber", „da" statt „weil", mehr Passiv-Hilfsverben als der
+Redner nutzt. Auch dieser Check fließt nicht in den Score ein. Korrigiere
+nur dort, wo eine Stelle die Änderung ohnehin trägt. Setze niemals Wörter
+ein, damit eine Rate besser aussieht — die Rede wird davon nicht besser,
+nur die Tabelle.
+
 ### Phase 2e: Iterative Verfeinerung
 
 Score < 85 → Abweichungen zeigen, gezielt überarbeiten, erneut validieren.
-Auffällige Wörter aus dem Wortschatz-Abgleich im selben Durchgang bereinigen.
-Max 3 Iterationen. Score ≥ 85 → User die Rede präsentieren.
+Auffällige Wörter aus den beiden Wort-Abgleichen im selben Durchgang
+bereinigen. Max 3 Iterationen. Score ≥ 85 → User die Rede präsentieren.
+Ein Durchgang darf auch null Änderungen ergeben, wenn die Abweichungen
+inhaltlich gerechtfertigt sind — dann benenne sie und mache weiter.
 
 ### Phase 2f: Abschluss
 
@@ -317,12 +328,14 @@ Prüfe ob eine DNA existiert. Mehrere vorhanden → User wählt welche.
 ```bash
 python scripts/validate_speech.py {Pfad-zur-Rede} output/sprach-dna/style-metrics.json
 python scripts/check_vocabulary.py {Pfad-zur-Rede} archive/beispielreden/ --quellen archive/quellen/
+python scripts/check_function_words.py {Pfad-zur-Rede} archive/beispielreden/
 ```
 
 Lies die Ergebnisse. Der Validierungs-Score gibt die quantitative
 Übereinstimmung mit dem Stil. Der Wortschatz-Abgleich zeigt Wörter, die der
-Redner in seinen Beispielreden (fast) nie verwendet — nutze sie als Belege
-für die Abweichungen in Phase 4d.
+Redner in seinen Beispielreden (fast) nie verwendet, der Funktionswort-Abgleich
+Konjunktionen, Präpositionen und Partikeln in ungewohnter Menge — nutze beides
+als Belege für die Abweichungen in Phase 4d.
 
 ### Phase 4c: Qualitative Prüfung (Claude)
 
