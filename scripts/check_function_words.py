@@ -4,7 +4,7 @@
 The 47 dimensions cover content-bearing style (sentence length, TTR,
 rhetoric) and a few hand-picked closed-class groups (fillers, modals,
 pronouns). What they do not show is which of the many small words a speaker
-actually prefers: "aber" or "jedoch", "weil" or "denn", "sehr" or "ganz".
+actually prefers: "aber" or "jedoch", "weil" or "da", "man" or "wir".
 These choices are made unconsciously, stay stable across topics and are
 therefore one of the oldest markers in stylometry.
 
@@ -13,7 +13,9 @@ conjunctions, auxiliaries, pronouns, particles) in the speech and in the
 example speeches and shows where the rates per 1000 tokens differ most.
 The word classes come from the spaCy POS tags, so no word list has to be
 maintained; only the connective adverbs are listed explicitly, because
-spaCy tags them as ADV, together with "heute" or "schnell".
+spaCy tags them as ADV, together with "heute" or "schnell". Degree and
+modal particles ("sehr", "ganz", "mal", "eben") are ADV too and stay out of
+scope for the same reason.
 
 Descriptive comparison, nothing more: with the corpus sizes that are usual
 here, a difference is a hint to look at a word, not proof of anything. The

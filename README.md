@@ -273,7 +273,7 @@ Namen, Zahlen und Vokabular aus `archive/quellen/` werden ausgenommen. Der Abgle
 
 ### Funktionswort-Abgleich
 
-Der Wortschatz-Abgleich sucht auffällige Inhaltswörter. `check_function_words.py` schaut auf die Gegenseite: die kleinen Wörter, die kein Thema haben. Welche Konjunktion, welche Präposition, welche Partikel ein Redner greift, entscheidet er nicht bewusst — und genau deshalb bleibt das über Themen hinweg stabil. „Aber" oder „jedoch", „weil" oder „da", „sehr" oder „ganz":
+Der Wortschatz-Abgleich sucht auffällige Inhaltswörter. `check_function_words.py` schaut auf die Gegenseite: die kleinen Wörter, die kein Thema haben. Welche Konjunktion, welche Präposition, welche Partikel ein Redner greift, entscheidet er nicht bewusst — und genau deshalb bleibt das über Themen hinweg stabil. „Aber" oder „jedoch", „weil" oder „da", „man" oder „wir":
 
 ```
 GRÖSSTE ABWEICHUNGEN (je 1000 Wörter):
@@ -285,7 +285,7 @@ weil                  8.41      1.12    -7.29 ↓
 wir                  21.30     14.61    -6.69 ↓
 ```
 
-Erfasst werden die geschlossenen Wortarten über die spaCy-POS-Tags (Artikel, Präpositionen, Konjunktionen, Hilfsverben, Pronomen, Partikeln) plus eine Liste von Konnektoradverbien, die spaCy als ADV führt. Auch dieser Abgleich fließt nicht in den Score ein. Er zeigt, wo nachzuschauen ist — Thema und Länge verschieben die Raten mit, und ein Wort einzusetzen, damit eine Rate passt, verbessert nur die Tabelle.
+Erfasst werden die geschlossenen Wortarten über die spaCy-POS-Tags (Artikel, Präpositionen, Konjunktionen, Hilfsverben, Pronomen, Partikeln) plus eine Liste von Konnektoradverbien, die spaCy als ADV führt. Gradpartikeln und Abtönungswörter („sehr", „ganz", „mal", „eben") bleiben außen vor — spaCy führt sie als ADV, zusammen mit „heute" und „schnell", und ohne eigene Wortliste ließen sie sich nicht sauber trennen. Auch dieser Abgleich fließt nicht in den Score ein. Er zeigt, wo nachzuschauen ist — Thema und Länge verschieben die Raten mit, und ein Wort einzusetzen, damit eine Rate passt, verbessert nur die Tabelle.
 
 ---
 
