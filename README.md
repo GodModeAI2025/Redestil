@@ -44,6 +44,7 @@ DNA + Learnings + Briefing + Quellen → Gliederung → Generierung → Validier
 - Rede abschnittsweise generieren (DNA + Learnings als Stil-Constraint)
 - Python validiert gegen Metriken (Score 0-100)
 - Wortschatz-Abgleich: Wörter, die der Redner in seinen Beispielreden (fast) nie verwendet
+- Funktionswort-Abgleich: Konjunktionen, Präpositionen und Partikeln in ungewohnter Menge
 - Iterative Verfeinerung bis Score ≥ 85
 
 ### Modus 3: Feedback & Lernen
@@ -189,6 +190,7 @@ RedenSkill/
 │   ├── validate_speech.py          ← Generierte Rede validieren (Score)
 │   ├── compare_feedback.py         ← Feedback-Delta-Analyse
 │   ├── check_vocabulary.py         ← Wortschatz-Abgleich (stilfremde Wörter)
+│   ├── check_function_words.py     ← Funktionswort-Abgleich (kleine Wörter)
 │   ├── requirements.txt
 │   └── setup.sh
 ├── archive/
@@ -268,6 +270,22 @@ AUFFÄLLIG — Lemma kommt höchstens 1x in den Beispielreden vor:
 ```
 
 Namen, Zahlen und Vokabular aus `archive/quellen/` werden ausgenommen. Der Abgleich fließt nicht in den Score ein — Fachbegriffe landen hier zu Recht. Er ist eine Liste zum Anschauen, keine Streichliste.
+
+### Funktionswort-Abgleich
+
+Der Wortschatz-Abgleich sucht auffällige Inhaltswörter. `check_function_words.py` schaut auf die Gegenseite: die kleinen Wörter, die kein Thema haben. Welche Konjunktion, welche Präposition, welche Partikel ein Redner greift, entscheidet er nicht bewusst — und genau deshalb bleibt das über Themen hinweg stabil. „Aber" oder „jedoch", „weil" oder „da", „sehr" oder „ganz":
+
+```
+GRÖSSTE ABWEICHUNGEN (je 1000 Wörter):
+
+Wort                Korpus      Rede      Diff
+---------------- --------- --------- ---------
+jedoch                 0.0     11.24    11.24 ↑
+weil                  8.41      1.12    -7.29 ↓
+wir                  21.30     14.61    -6.69 ↓
+```
+
+Erfasst werden die geschlossenen Wortarten über die spaCy-POS-Tags (Artikel, Präpositionen, Konjunktionen, Hilfsverben, Pronomen, Partikeln) plus eine Liste von Konnektoradverbien, die spaCy als ADV führt. Auch dieser Abgleich fließt nicht in den Score ein. Er zeigt, wo nachzuschauen ist — Thema und Länge verschieben die Raten mit, und ein Wort einzusetzen, damit eine Rate passt, verbessert nur die Tabelle.
 
 ---
 
@@ -353,6 +371,8 @@ Alle Abhängigkeiten sind MIT-lizenziert — kommerziell uneingeschränkt nutzba
 Der Ansatz ist inspiriert von [TinyStyler](https://github.com/zacharyhorvitz/TinyStyler) (EMNLP 2024), einem Few-Shot Style Transfer System das Schreibstile in messbare Embeddings überführt. RedenSkill adaptiert dieses Prinzip — Style als quantifizierbaren Fingerabdruck behandeln — für deutschsprachige Reden und nutzt Claude statt eines Fine-Tuned T5-Modells für die Generierung.
 
 Die Idee des Wortschatz-Abgleichs (Wörter einer Vorlage gegen den eigenen Korpus prüfen, generierte Texte nicht ungeprüft in die Vergleichsbasis übernehmen) stammt aus [housestyle](https://github.com/TheKieselbach/housestyle) und ist hier eigenständig mit spaCy-Lemmata umgesetzt.
+
+Den Funktionswort-Abgleich hat [your_voice](https://github.com/Wang-Haining/your_voice) angestoßen, das Funktionswörter, Interpunktion und Satzrhythmus als die belastbaren Stilmerkmale behandelt und die größten Abweichungen zuerst angeht. Hier ist das deskriptiv für das Deutsche umgesetzt — über spaCy-POS-Tags statt über eine englische Wortliste und ohne Klassifikator.
 
 ---
 

@@ -41,10 +41,11 @@ python -m spacy download de_core_news_lg
 | `validate_speech.py` | Generierte Rede gegen DNA-Metriken validieren |
 | `compare_feedback.py` | Original vs. überarbeitete Rede → Learnings |
 | `check_vocabulary.py` | Wörter in einer Rede, die der Redner (fast) nie verwendet |
+| `check_function_words.py` | Funktionswörter: Rate in der Rede vs. Rate im Korpus |
 
 ## Konventionen
 
 - Alle Ausgaben auf Deutsch
 - Dateibenennung: `SPRACH-DNA-{Name}.md`, `REDE-{Thema}-{Datum}.md`
-- Metriken als JSON: `style-metrics.json`, `validation-*.json`, `vokabular-*.json`, `feedback-*.json`
+- Metriken als JSON: `style-metrics.json`, `validation-*.json`, `vokabular-*.json`, `funktionswörter-*.json`, `feedback-*.json`
 - Learnings pro DNA: `LEARNINGS-{Name}.md`
